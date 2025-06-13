@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>VR Placement Trial</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/aframe-super-hands-component@4.0.5/dist/aframe-super-hands.min.js"></script>
+    <style>
+      #ui {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 5px;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ui">
+      <button onclick="startTrial()">Start Trial</button>
+      <button onclick="downloadLog()">Download Log</button>
+      <p id="status">Status: Idle</p>
+    </div>
+    <a-scene background="color: #ECECEC">
+      <a-assets>
+        <a-asset-item id="sword" src="https://cdn.glitch.global/7dca033e-e228-42b7-bdc9-7a2b9a24c931/sword.glb?v=1688564009263"></a-asset-item>
+      </a-assets>
+
+      <a-camera position="0 1.6 0">
+        <a-entity laser-controls="hand: right"></a-entity>
+      </a-camera>
+
+      <a-entity id="object" geometry="primitive: box" material="color: red" position="0 1.4 -2" visible="false"></a-entity>
+      <a-entity id="target" geometry="primitive: box" material="color: green" position="0 1.4 -3" visible="false"></a-entity>
+
+      <a-entity id="tick" text="value: ✓; color: green; align: center" position="0 2 -2" visible="false"></a-entity>
+
+      <a-entity light="type: ambient; intensity: 1"></a-entity>
+      <a-entity light="type: directional; intensity: 0.5" position="1 3 1"></a-entity>
+    </a-scene>
+
+    <script>
+      let log = [];
+      let trialStarted = false;
+
+      function startTrial() {
+        log = [];
+        trialStarted = true;
+        document.getElementById('status').innerText = 'Status: Trial Started';
+
+        const object = document.getElementById('object');
+        const target = document.getElementById('target');
+        const tick = document.getElementById('tick');
+
+        object.setAttribute('visible', true);
+        target.setAttribute('visible', true);
+        tick.setAttribute('visible', false);
+
+        object.setAttribute('position', { x: 0, y: 1.4, z: -2 });
+        target.setAttribute('position', { x: 0, y: 1.4, z: -3 });
+
+        object.addEventListener('grab-end', function () {
+          const objPos = object.object3D.position;
+          const tgtPos = target.object3D.position;
+          const dist = objPos.distanceTo(tgtPos);
+          const success = dist < 0.3;
+
+          log.push({
+            timestamp: Date.now(),
+            objectPosition: { x: objPos.x, y: objPos.y, z: objPos.z },
+            distanceToTarget: dist,
+            success: success
+          });
+
+          if (success) {
+            tick.setAttribute('visible', true);
+            object.setAttribute('visible', false);
+            setTimeout(() => {
+              tick.setAttribute('visible', false);
+              // could trigger next object here
+            }, 1000);
+          }
+        });
+      }
+
+      function downloadLog() {
+        if (!log.length) return alert('No log to download.');
+        const blob = new Blob([JSON.stringify(log, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'vr-trial-log.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    </script>
+  </body>
+</html>
