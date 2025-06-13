@@ -34,7 +34,7 @@
       <a-entity id="rightHand" super-hands laser-controls="hand: right" raycaster="objects: .clickable" cursor="rayOrigin: entity"></a-entity>
 
       <a-entity id="versionLabel" position="0 1.7 -1.5">
-  <a-text value="Version 1.004" align="center" color="#000" position="0 0 0.01"></a-text>
+  <a-text value="Version 1.005" align="center" color="#000" position="0 0 0.01"></a-text>
 </a-entity>
 
 <a-entity id="startButton" class="clickable" geometry="primitive: plane; height: 0.3; width: 1" material="color: #2196F3" position="0 1.4 -1.5">
@@ -45,8 +45,7 @@
   <a-text value="Reload Page" align="center" position="0 0 0.01" color="#fff" width="2.5"></a-text>
 </a-entity>
       </a-entity>
-
-      <a-entity id="object" grabbable hoverable geometry="primitive: box" material="color: red" position="0 1.4 -2" visible="false"></a-entity>
+<a-entity id="object" grabbable hoverable geometry="primitive: box" material="color: red" position="0 1.4 -2" visible="false"></a-entity>
       <a-entity id="target" geometry="primitive: box" material="color: green" position="0 1.4 -3" visible="false"></a-entity>
 
       <a-entity id="tick" text="value: ✓; color: green; align: center" position="0 2 -2" visible="false"></a-entity>
@@ -75,11 +74,15 @@ AFRAME.registerComponent('reload-listener', {
     });
   }
 });
+  }
+});
         }
       });
 
-      document.querySelector('#startButton').setAttribute('start-listener', '');
-document.querySelector('#reloadButton').setAttribute('reload-listener', '');
+      window.addEventListener('DOMContentLoaded', () => {
+  document.querySelector('#startButton').setAttribute('start-listener', '');
+  document.querySelector('#reloadButton').setAttribute('reload-listener', '');
+});
 
       function startTrial() {
         const versionLabel = document.getElementById('versionLabel');
